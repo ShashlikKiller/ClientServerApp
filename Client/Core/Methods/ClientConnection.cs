@@ -37,7 +37,6 @@ namespace Client.Core.Methods
                     data.Append(Encoding.UTF8.GetString(buffer));
                 }
                 while (udpSocket.Available > 0);
-                Console.WriteLine(data);
             }
             // TODO: Закрытие сокета
             #endregion
@@ -51,10 +50,10 @@ namespace Client.Core.Methods
         /// <returns></returns>
         public List<T> GetList<T>(string ListToGet)
         {
-            var buffer = new byte[255]; // Инициализация буфера, размера сообщения и данных
+            var _buffer = buffer; // Инициализация буфера, размера сообщения и данных
             List<T> NewList;
             udpSocket.SendTo(Encoding.UTF8.GetBytes(ListToGet), serverEndPoint);
-            NewList = JsonSerializer.Deserialize<List<T>>(udpSocket.ReceiveFrom(buffer, ref serverEndPoint));
+            NewList = JsonSerializer.Deserialize<List<T>>(udpSocket.ReceiveFrom(_buffer, ref serverEndPoint));
             return NewList;
         }
     }

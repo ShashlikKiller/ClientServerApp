@@ -25,13 +25,13 @@ namespace ClientServerApp.BackEnd.Methods
         {
             return await Task.Run(() => db.Students.ToList());
         }
-        public void AddStudent(Student student, dbEntities db)
+        public static async void AddStudent(Student student, dbEntities db)
         {
             db.Students.Add(student);
             db.SaveChanges();
 
         }
-        public void DeleteStudent(int index, dbEntities db)
+        public static void DeleteStudent(int index, dbEntities db)
         {
             Student student = db.Students.FirstOrDefault(s => s.id == index);
             if (student != null)
