@@ -10,6 +10,7 @@ using System.Text.Json;
 using static ClientServerApp.BackEnd.Methods.DBController;
 using ClientServerApp.Database;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace ClientServerApp.BackEnd.Methods
 {
@@ -54,16 +55,19 @@ namespace ClientServerApp.BackEnd.Methods
         /// <returns></returns>
         public async static Task LoggerMessageOutput(string message, string type)
         {
-            Console.WriteLine(message);
             switch (type)
             {
                 case "error":
+                    Console.WriteLine(message);
                     logger.Error(message);
                     break;
                 case "info":
+                    Console.WriteLine(message);
                     logger.Info(message);
                     break;
                 case "start":
+                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.WriteLine(message);
                     logger.Info($"Server start at: {DateTime.Now}.\n {message}");
                     break;
                 default:
@@ -72,37 +76,43 @@ namespace ClientServerApp.BackEnd.Methods
             }
         }
 
+        static JsonSerializerOptions options = new JsonSerializerOptions()
+        {
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            WriteIndented = true
+        };
+
         /// <summary>
         /// Метод, отправляющий листы сущностей объектов, хранящихся в базе данных.
         /// </summary>
         /// <param name="clientMessage">Строка, указывающая какой лист надо отправить("groups", "students", "learningstatuses").</param>
         /// <returns></returns>
-        public async Task SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
         {
-            while (true)
+            try
             {
-                try
+                switch (clientMessage)
                 {
-                    switch (clientMessage)
-                    {
-                        case "groups":
-                            await SendDataAsync(udpSocket, senderEndPoint, JsonSerializer.Serialize(GetGroups(db)));
-                            break;
-                        case "students":
-                            await SendDataAsync(udpSocket, senderEndPoint, JsonSerializer.Serialize(GetStudents(db)));
-                            break;
-                        case "learningstatuses":
-                            await SendDataAsync(udpSocket, senderEndPoint, JsonSerializer.Serialize(GetStatuses(db)));
-                            break;
-                        default:
-                            await LoggerMessageOutput("Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'", "error");
-                            break;
-                    }
+                    case "groups":
+                        List<Group> groups = db.Groups.ToList();
+                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(groups, options));
+                        break;
+                    case "students":
+                        List<Student> students = db.Students.ToList();
+                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(students));
+                        break;
+                    case "learningstatuses":
+                        List<LearningStatus> learningStatuses = db.LearningStatuses.ToList();
+                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(learningStatuses, options));
+                        break;
+                    default:
+                        LoggerMessageOutput("Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'", "error");
+                        break;
                 }
-                catch (SocketException e)
-                {
-                    await LoggerMessageOutput($"Error: {e.Message}", "error");
-                }
+            }
+            catch (SocketException e)
+            {
+                LoggerMessageOutput($"Error: {e.Message}", "error");
             }
         }
 

@@ -25,16 +25,17 @@ namespace ClientServerApp
         // 2. Логирование операций на стороне сервера с помощью библиотеки NLog
         // 3. Сервер должен многопоточным.
         // Многопоточность реализовать с помощью асинхронных методов класса UDPClient
+
+        static IPAddress serverIP = IPAddress.Parse("127.0.0.1");
+        const int serverPort = 8081;
+
         static void Main(string[] args)
         {
-            Console.WriteLine("This is server.");
+            Console.WriteLine("This is server.\n");
             //logger.Info($"Server started at:{DateTime.Now}");
-
-            const string ip = "127.0.0.1";
-            const int port = 8081; // У КЛИЕНТА И СЕРВЕРА РАЗНЫЕ ПОРТЫ! СВЯЗЬ ЧЕРЕЗ СЕРВЕР И КЛИЕНТ ЭНДПОИНТ
-            #region database init
             using (var db = new dbEntities())
             {
+                Console.Write("Starting and initializing the server...\n");
                 #region test
                 Console.Write("Students:\n");
                 foreach (Student student in db.Students)
@@ -54,7 +55,7 @@ namespace ClientServerApp
                 #endregion
                 try
                 {
-                    var udpEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                    var udpEndPoint = new IPEndPoint(serverIP, serverPort);
                     var udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                     udpSocket.Bind(udpEndPoint);
                     StartReceiving(udpSocket, db);
@@ -64,27 +65,26 @@ namespace ClientServerApp
                     Console.WriteLine(e.Message);
                 }
             }
-            #endregion
         }
 
         private static async void StartReceiving(Socket udpSocket, dbEntities db) // = task
         {
             string server_answer; // Переменная ответа сервера клиенту
             string data; // Данные сообщения от клиента
-            List<Student> Students = db.Students.ToList();
-            List<Group> Groups = db.Groups.ToList();
-            List<LearningStatus> LearningStatuses = db.LearningStatuses.ToList();
+            //List<Student> Students = db.Students.ToList();
+            //List<Group> Groups = db.Groups.ToList();
+            //List<LearningStatus> LearningStatuses = db.LearningStatuses.ToList();
+            //List<Student> newStudents = new List<Student>(); // Лист новых, добавленных во время работы приложения студентов
             IPAddress clientIP = IPAddress.Parse("127.0.0.1"); // this is client's ip and port
-            const int clientPort = 8082;
+            int clientPort = 8082;
             EndPoint senderEndPoint = new IPEndPoint(clientIP, clientPort); // Эндпоинт клиента(отправителя сообщений)
+            //logger.Info($"Server started at {DateTime.Now}");
             Console.WriteLine("Server started successfully!");
             while (true)
             {
-                data = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
-                await LoggerMessageOutput($"Client menu's choice: {data}", "info");
-                SendDataAsync(udpSocket, senderEndPoint, "Invalid data. Try again."); // NO AWAIT
-                Console.WriteLine("Received invalid data");
-                //}
+                data = ReceiveData(udpSocket, senderEndPoint);
+                SendList(data, udpSocket, senderEndPoint, db);
+                //SendDataAsync(udpSocket, senderEndPoint, "test"); // NO AWAIT
             }
         }
     }

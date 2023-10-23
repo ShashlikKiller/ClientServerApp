@@ -8,15 +8,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using static Client.Core.Methods.ClientConnection;
 
 namespace Client.ViewModel.WindowViewModel
 {
     internal class MainWindowViewModel : BasicViewModel
     {
-        public ObservableCollection<Student> Students;
-        public ObservableCollection<Group> Groups;
-        public ObservableCollection<LearningStatus> LearningStatuses;
-
+    
         public MainWindowViewModel()
         {
             welcome = new View.Pages.WelcomePage();

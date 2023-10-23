@@ -6,41 +6,13 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
+using Client.Core.Entities;
+using System.Collections.ObjectModel;
 
 namespace Client.Core.Methods
 {
     public class ClientConnection
     {
-        static byte[] buffer = new byte[255]; // Инициализация буфера, размера сообщения и данных
-        const string ip = "127.0.0.1"; // this is client's ip and port
-        const int port = 8082;
-        static readonly Socket udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        static EndPoint udpEndPoint = new IPEndPoint(IPAddress.Parse(ip), port); // client's endpoint
-        static EndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081); // server's endpoint
-
-        public static void ClientInitialization()
-        {
-            #region client initialization
-            var udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            udpSocket.Bind(udpEndPoint);
-            #endregion
-            #region working with server
-            while (true)
-            {
-                int size;
-                var data = new StringBuilder();
-                string message = "test"; // TODO: Remake this
-                udpSocket.SendTo(Encoding.UTF8.GetBytes(message), serverEndPoint);
-                do
-                {
-                    size = udpSocket.ReceiveFrom(buffer, ref serverEndPoint);
-                    data.Append(Encoding.UTF8.GetString(buffer));
-                }
-                while (udpSocket.Available > 0);
-            }
-            // TODO: Закрытие сокета
-            #endregion
-        }
 
         /// <summary>
         /// Метод получения сереализованных листов с сервера
@@ -48,13 +20,40 @@ namespace Client.Core.Methods
         /// <typeparam name="T"> Класс объектов листа, который должен получить клиент(универсальный)</typeparam>
         /// <param name="ListToGet">Какой именно лист нам нужен: на стороне сервера идет реализация через switch-case конструкцию. (см. ServerCommandAsync.cs)</param>
         /// <returns></returns>
-        public List<T> GetList<T>(string ListToGet)
+        public static ObservableCollection<T> GetList<T>(string ListToGet, Socket udpSocket, EndPoint serverEndPoint)
         {
-            var _buffer = buffer; // Инициализация буфера, размера сообщения и данных
-            List<T> NewList;
-            udpSocket.SendTo(Encoding.UTF8.GetBytes(ListToGet), serverEndPoint);
-            NewList = JsonSerializer.Deserialize<List<T>>(udpSocket.ReceiveFrom(_buffer, ref serverEndPoint));
+            ObservableCollection<T> NewList;
+            SendData(udpSocket, serverEndPoint, ListToGet);
+            string answer = ReceiveData(udpSocket, serverEndPoint);
+            NewList = new ObservableCollection<T>(JsonSerializer.Deserialize<List<T>>(answer));
             return NewList;
+        }
+
+        public static string ReceiveData(Socket udpSocket, EndPoint senderEndPoint)
+        {
+            string data;
+            int size;
+            byte[] buffer = new byte[256];
+            size = udpSocket.ReceiveFrom(buffer, ref senderEndPoint);
+            data = Encoding.UTF8.GetString(buffer, 0, size);
+            return data;
+        }
+
+        public static async Task<string> ReceiveDataAsync(Socket udpSocket, EndPoint senderEndPoint)
+        {
+            return await Task.Run(() => ReceiveData(udpSocket, senderEndPoint));
+        }
+
+        public static void SendData(Socket udpSocket, EndPoint senderEndPoint, string server_answer)
+        {
+            byte[] responseBuffer;
+            responseBuffer = Encoding.UTF8.GetBytes(server_answer);
+            udpSocket.SendTo(responseBuffer, SocketFlags.None, senderEndPoint);
+        }
+
+        public static async Task SendDataAsync(Socket udpSocket, EndPoint senderEndPoint, string server_answer)
+        {
+            await Task.Run(() => SendData(udpSocket, senderEndPoint, server_answer));
         }
     }
 }
