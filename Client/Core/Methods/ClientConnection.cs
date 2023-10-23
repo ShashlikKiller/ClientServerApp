@@ -33,7 +33,7 @@ namespace Client.Core.Methods
         {
             string data;
             int size;
-            byte[] buffer = new byte[256];
+            byte[] buffer = new byte[65535];
             size = udpSocket.ReceiveFrom(buffer, ref senderEndPoint);
             data = Encoding.UTF8.GetString(buffer, 0, size);
             return data;

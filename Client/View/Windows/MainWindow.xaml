@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Client"
+        xmlns:local="clr-namespace:Client" xmlns:windowviewmodel="clr-namespace:Client.ViewModel.WindowViewModel" d:DataContext="{d:DesignInstance Type=windowviewmodel:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         Background="#0E294B">
@@ -29,6 +29,66 @@
             <TextBlock Text="Client" HorizontalAlignment="Center" FontSize="24" Foreground="White" VerticalAlignment="Center"/>
         </Border>
         <Frame Name="StatusFrame" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="2" Content="{Binding StatusPage}"/>
-        <Frame Name="MainFrame" NavigationUIVisibility="Hidden" Grid.Column="2" Grid.Row="2" Content="{Binding CurrentPage}" Opacity="{Binding FrameOpacity}"/>
+        <DataGrid Grid.Row="2" Grid.Column="2" x:Name="studentsDataGrid" ItemsSource="{Binding Students, UpdateSourceTrigger=PropertyChanged}"
+                  CanUserDeleteRows="False"
+                  AutoGenerateColumns="False"
+                  SelectionMode="Single">
+            <DataGrid.Resources>
+                <Style x:Key="errorStyle" TargetType="{x:Type TextBox}">
+                    <Setter Property="Padding" Value="-2"/>
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter Property="Background" Value="Red"/>
+                            <Setter Property="ToolTip" 
+                    Value="{Binding RelativeSource={RelativeSource Self},
+                      Path=(Validation.Errors)[0].ErrorContent}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Имя" 
+                                    EditingElementStyle="{StaticResource errorStyle}"
+                                    Binding="{Binding Path=name, 
+                                                UpdateSourceTrigger=Explicit, ValidatesOnExceptions=True, Mode=TwoWay, 
+                                                NotifyOnValidationError=True}"
+                                    Width="0.4*"/>
+                <DataGridTextColumn Header="Фамилия" 
+                                    EditingElementStyle="{StaticResource errorStyle}"
+                                    Binding="{Binding Path=surname, 
+                                                UpdateSourceTrigger=Explicit, ValidatesOnExceptions=True, Mode=TwoWay, 
+                                                NotifyOnValidationError=True}"
+                                    Width="0.4*"/>
+                <DataGridComboBoxColumn ItemsSource="{Binding Groups}" 
+                                        DisplayMemberPath="name" TextBinding="{Binding Group.name}"
+                                        SelectedValuePath="group_id"
+                                        SelectedValueBinding="{Binding group_id, 
+                                                                Mode=TwoWay, UpdateSourceTrigger=Explicit,
+                                                                ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
+                                        Header="Группа" Width="0.4*"/>
+                <DataGridComboBoxColumn ItemsSource="{Binding Statuses}" 
+                                        DisplayMemberPath="status"  TextBinding="{Binding LearningStatus.status}"
+                                        SelectedValuePath="learningstatus_id"
+                                        SelectedValueBinding="{Binding learningstatus_id, 
+                                                                Mode=TwoWay, UpdateSourceTrigger=Explicit,
+                                                                ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
+                                        Header="Статус" Width="0.6*"/>
+            </DataGrid.Columns>
+            <DataGrid.RowValidationErrorTemplate>
+                <ControlTemplate>
+                    <Grid Margin="0,-2,0,-2"
+            ToolTip="{Binding RelativeSource={RelativeSource
+            FindAncestor, AncestorType={x:Type DataGridRow}},
+            Path=(Validation.Errors)[0].ErrorContent}">
+                        <Ellipse StrokeThickness="0" Fill="Red" 
+              Width="{TemplateBinding FontSize}" 
+              Height="{TemplateBinding FontSize}" />
+                        <TextBlock Text="!" FontSize="{TemplateBinding FontSize}" 
+              FontWeight="Bold" Foreground="White" 
+              HorizontalAlignment="Center"  />
+                    </Grid>
+                </ControlTemplate>
+            </DataGrid.RowValidationErrorTemplate>
+        </DataGrid>
     </Grid>
 </Window>

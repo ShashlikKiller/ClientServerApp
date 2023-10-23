@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Sockets;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,9 +16,31 @@ namespace Client.ViewModel.WindowViewModel
 {
     internal class MainWindowViewModel : BasicViewModel
     {
-    
+        private ObservableCollection<Student> students;
+        private ObservableCollection<Group> groups;
+        private ObservableCollection<LearningStatus> learningStatuses;
+
+        public ObservableCollection<Student> Students { get => students; set => students = value; }
+        public ObservableCollection<Group> Groups { get => groups; set => groups = value; }
+        public ObservableCollection<LearningStatus> Statuses { get => learningStatuses; set => learningStatuses = value; }
+
+        public Student SelectedStudent { get; set; }
+
+
+        const string ip = "127.0.0.1"; // this is client's ip and port
+        const int port = 8082;
+        EndPoint udpEndPoint = new IPEndPoint(IPAddress.Parse(ip), port); // client's endpoint
+        EndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081); // server's endpoint
+        Socket udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+
         public MainWindowViewModel()
         {
+            udpSocket.Bind(udpEndPoint);
+            Thread.Sleep(5000);
+            Groups = GetList<Group>("groups", udpSocket, serverEndPoint);
+            Students = GetList<Student>("students", udpSocket, serverEndPoint);
+            Statuses = GetList<LearningStatus>("learningstatuses", udpSocket, serverEndPoint);
             welcome = new View.Pages.WelcomePage();
             status = new View.Pages.StatusPage();
             StatusPage = status;

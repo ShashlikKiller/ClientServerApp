@@ -22,13 +22,5 @@
         <DockPanel Grid.Row="1">
             <TextBlock Text="Также вы можете изменить его информацию или удалить его." FontSize="15" HorizontalAlignment="Center" Foreground="AliceBlue" VerticalAlignment="Center"/>
         </DockPanel>
-        <DataGrid x:Name="studentsDataGrid" ItemsSource="{Binding Students, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                <DataGridTextColumn Header="Surname" Binding="{Binding Surname}" />
-                <DataGridTextColumn Header="Group" Binding="{Binding Group.Name}" />
-                <DataGridTextColumn Header="Learning Status" Binding="{Binding LearningStatus.Status}" />
-            </DataGrid.Columns>
-        </DataGrid>
     </Grid>
 </Page>
