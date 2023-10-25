@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         Background="#0E294B">
+    <Window.Resources>
+        <CollectionViewSource x:Key="GroupProv" Source="{Binding Groups}"/>
+        <CollectionViewSource x:Key="StatusProv" Source="{Binding Statuses}"/>
+    </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -34,7 +39,7 @@
                   AutoGenerateColumns="False"
                   SelectionMode="Single">
             <DataGrid.Resources>
-                <Style x:Key="errorStyle" TargetType="{x:Type TextBox}">
+                    <Style x:Key="errorStyle" TargetType="{x:Type TextBox}">
                     <Setter Property="Padding" Value="-2"/>
                     <Style.Triggers>
                         <Trigger Property="Validation.HasError" Value="True">
@@ -59,16 +64,15 @@
                                                 UpdateSourceTrigger=Explicit, ValidatesOnExceptions=True, Mode=TwoWay, 
                                                 NotifyOnValidationError=True}"
                                     Width="0.4*"/>
-                <DataGridComboBoxColumn ItemsSource="{Binding Groups}" 
-                                        DisplayMemberPath="name" TextBinding="{Binding Group.name}"
-                                        SelectedValuePath="group_id"
-                                        SelectedValueBinding="{Binding group_id, 
-                                                                Mode=TwoWay, UpdateSourceTrigger=Explicit,
-                                                                ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
-                                        Header="Группа" Width="0.4*"/>
-                <DataGridComboBoxColumn ItemsSource="{Binding Statuses}" 
+                <DataGridComboBoxColumn Header="Группа"
+                        ItemsSource="{Binding Source={StaticResource GroupProv}}"
+                        DisplayMemberPath="name" TextBinding="{Binding Group.name}"
+                        SelectedValuePath="id"
+                        SelectedValueBinding="{Binding group_id, Mode=TwoWay, UpdateSourceTrigger=Explicit, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
+                        Width="0.4*"/>
+                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource StatusProv}}" 
                                         DisplayMemberPath="status"  TextBinding="{Binding LearningStatus.status}"
-                                        SelectedValuePath="learningstatus_id"
+                                        SelectedValuePath="id"
                                         SelectedValueBinding="{Binding learningstatus_id, 
                                                                 Mode=TwoWay, UpdateSourceTrigger=Explicit,
                                                                 ValidatesOnDataErrors=True, NotifyOnValidationError=True}"

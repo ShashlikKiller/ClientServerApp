@@ -17,12 +17,12 @@ namespace Client.ViewModel.WindowViewModel
     internal class MainWindowViewModel : BasicViewModel
     {
         private ObservableCollection<Student> students;
-        private ObservableCollection<Group> groups;
-        private ObservableCollection<LearningStatus> learningStatuses;
+        private static ObservableCollection<Group> groups;
+        private static ObservableCollection<LearningStatus> learningStatuses;
 
         public ObservableCollection<Student> Students { get => students; set => students = value; }
-        public ObservableCollection<Group> Groups { get => groups; set => groups = value; }
-        public ObservableCollection<LearningStatus> Statuses { get => learningStatuses; set => learningStatuses = value; }
+        public static ObservableCollection<Group> Groups { get => groups; set => groups = value; }
+        public static ObservableCollection<LearningStatus> Statuses { get => learningStatuses; set => learningStatuses = value; }
 
         public Student SelectedStudent { get; set; }
 
@@ -46,6 +46,10 @@ namespace Client.ViewModel.WindowViewModel
             StatusPage = status;
             CurrentPage = welcome;
             FrameOpacity = 1;
+            while (true)
+            {
+
+            }
         }
 
         #region Work with pages

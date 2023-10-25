@@ -40,7 +40,7 @@ namespace ClientServerApp
                 Console.Write("Students:\n");
                 foreach (Student student in db.Students)
                 {
-                    Console.WriteLine($"student id: {student.id}, student's name: {student.name}, student's surname: {student.surname}, student's group:{student.group_id}, {student.Group.name}");
+                    Console.WriteLine($"student id: {student.id}, student's name: {student.name}, student's surname: {student.surname}, student's group: {student.Group.name}, student status: {student.LearningStatus.status}");
                 }
                 Console.Write("Groups:\n");
                 foreach (Group group in db.Groups)

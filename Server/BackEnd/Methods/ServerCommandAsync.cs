@@ -53,7 +53,7 @@ namespace ClientServerApp.BackEnd.Methods
         /// <param name="message">Сообщение, которое нужно вывести в консоль и логи</param>
         /// <param name="type">Тип сообщения ("error", "info", "start")</param>
         /// <returns></returns>
-        public async static Task LoggerMessageOutput(string message, string type)
+        public static void LoggerMessageOutput(string type, string message)
         {
             switch (type)
             {
@@ -96,14 +96,19 @@ namespace ClientServerApp.BackEnd.Methods
                     case "groups":
                         List<Group> groups = db.Groups.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(groups, options));
+                        LoggerMessageOutput("info", "List of groups was sended to client.");
                         break;
                     case "students":
                         List<Student> students = db.Students.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(students));
+                        LoggerMessageOutput("info", "List of students was sended to client.");
+
                         break;
                     case "learningstatuses":
                         List<LearningStatus> learningStatuses = db.LearningStatuses.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(learningStatuses, options));
+                        LoggerMessageOutput("info", "List of statuses was sended to client.");
+
                         break;
                     default:
                         LoggerMessageOutput("Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'", "error");
@@ -125,11 +130,11 @@ namespace ClientServerApp.BackEnd.Methods
                 {
                     AddStudent(JsonSerializer.Deserialize<Student>(_ReceivedDataFromClient), db);
                     Console.WriteLine("User add new student.");
-                    logger.Trace("Добавление записи прошло успешно");
+                    LoggerMessageOutput("info", "Success add.");
                 }
                 catch (Exception e)
                 {
-                    await LoggerMessageOutput($"Error: {e.Message}", "error");
+                    LoggerMessageOutput($"Error: {e.Message}", "error");
                 }
             }
         }
@@ -150,7 +155,7 @@ namespace ClientServerApp.BackEnd.Methods
                 }
                 catch (Exception e)
                 {
-                    await LoggerMessageOutput($"Error: {e.Message}", "error");
+                    LoggerMessageOutput($"Error: {e.Message}", "error");
                 }
             }
         }

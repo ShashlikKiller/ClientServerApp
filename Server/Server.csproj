@@ -125,7 +125,7 @@
       <DependentUpon>dbModel.edmx</DependentUpon>
     </None>
     <Content Include="Logger\NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Logger\NLog.xsd">
       <SubType>Designer</SubType>

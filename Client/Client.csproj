@@ -84,6 +84,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ViewModel\BasicViewModel.cs" />
+    <Compile Include="ViewModel\GroupOC.cs" />
     <Compile Include="ViewModel\WindowViewModel\MainWindowViewModel.cs" />
     <Compile Include="View\Pages\StatusPage.xaml.cs">
       <DependentUpon>StatusPage.xaml</DependentUpon>
