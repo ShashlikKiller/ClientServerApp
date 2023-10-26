@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Client.Core.Entities
 {
-    internal class Student
+    public class Student
     {
         public int id { get; set; }
         public string name { get; set; }

@@ -84,8 +84,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ViewModel\BasicViewModel.cs" />
-    <Compile Include="ViewModel\GroupOC.cs" />
-    <Compile Include="ViewModel\WindowViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="View\Pages\StatusPage.xaml.cs">
       <DependentUpon>StatusPage.xaml</DependentUpon>
     </Compile>
@@ -103,7 +102,7 @@
     <Compile Include="Core\Entities\Group.cs" />
     <Compile Include="Core\Entities\LearningStatus.cs" />
     <Compile Include="Core\Entities\Student.cs" />
-    <Compile Include="Core\Methods\ClientConnection.cs" />
+    <Compile Include="Core\Methods\ClientController.cs" />
     <Compile Include="Core\Methods\Command.cs" />
     <Compile Include="View\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -148,6 +147,7 @@
   <ItemGroup>
     <Folder Include="Design\" />
     <Folder Include="ViewModel\PageViewModel\" />
+    <Folder Include="ViewModel\WindowViewModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

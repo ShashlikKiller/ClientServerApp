@@ -10,7 +10,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using static Client.Core.Methods.ClientConnection;
+using static Client.Core.Methods.ClientController;
+using System.Text.Json;
+using System.Timers;
 
 namespace Client.ViewModel.WindowViewModel
 {
@@ -27,11 +29,66 @@ namespace Client.ViewModel.WindowViewModel
         public Student SelectedStudent { get; set; }
 
 
-        const string ip = "127.0.0.1"; // this is client's ip and port
-        const int port = 8082;
-        EndPoint udpEndPoint = new IPEndPoint(IPAddress.Parse(ip), port); // client's endpoint
-        EndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8081); // server's endpoint
+        static IPAddress clientIP = IPAddress.Parse("127.0.0.1");
+        const int clientPort = 8082;
+        EndPoint udpEndPoint = new IPEndPoint(clientIP, clientPort); // client's endpoint
+
+        static IPAddress serverIP = IPAddress.Parse("127.0.0.1");
+        const int serverPort = 8081;
+        EndPoint serverEndPoint = new IPEndPoint(serverIP, serverPort); // server's endpoint
+
         Socket udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+        private Command deleteStudent;
+        public Command DeleteStudentCommand
+        {
+            get
+            {
+                return deleteStudent ?? (deleteStudent = new Command(obj =>
+                {
+                    DeleteStudent(udpSocket, serverEndPoint);
+                }));
+            }
+        }
+        private Command addStudent;
+        public Command AddStudentCommand
+        {
+            get
+            {
+                return addStudent ?? (addStudent = new Command(obj =>
+                {
+                    AddStudent(udpSocket, serverEndPoint);
+                }));
+            }
+        }
+
+        public async void DeleteStudent(Socket udpSocket, EndPoint serverEndPoint)
+        {
+            if (!(SelectedStudent is null))
+            {
+                if (!(String.IsNullOrEmpty(SelectedStudent.name) || String.IsNullOrEmpty(SelectedStudent.surname) || SelectedStudent.Group is null || SelectedStudent.LearningStatus is null))
+                {
+                    SendData(udpSocket, serverEndPoint, "delete");
+                    await SendDataAsync(udpSocket, serverEndPoint, SelectedStudent.id.ToString());
+                    Thread.Sleep(2000);
+                    Students.Remove(SelectedStudent);
+                }
+            }
+        }
+        public async void AddStudent(Socket udpSocket, EndPoint serverEndPoint)
+        {
+            if (!(SelectedStudent is null))
+            {
+                if (!(String.IsNullOrEmpty(SelectedStudent.name) || String.IsNullOrEmpty(SelectedStudent.surname) || SelectedStudent.group_id == 0 || SelectedStudent.learningstatus_id == 0))
+                {
+                    SendData(udpSocket, serverEndPoint, "add");
+                    string _message = JsonSerializer.Serialize(SelectedStudent);
+                    await SendDataAsync(udpSocket, serverEndPoint, _message);
+                    Thread.Sleep(2000);
+                    Students = GetList<Student>("students", udpSocket, serverEndPoint);
+                }
+            }
+        }
 
 
         public MainWindowViewModel()
@@ -46,10 +103,6 @@ namespace Client.ViewModel.WindowViewModel
             StatusPage = status;
             CurrentPage = welcome;
             FrameOpacity = 1;
-            while (true)
-            {
-
-            }
         }
 
         #region Work with pages

@@ -29,10 +29,12 @@ namespace ClientServerApp
         static IPAddress serverIP = IPAddress.Parse("127.0.0.1");
         const int serverPort = 8081;
 
+        static IPAddress clientIP = IPAddress.Parse("127.0.0.1");
+        const int clientPort = 8082;
+
         static void Main(string[] args)
         {
             Console.WriteLine("This is server.\n");
-            //logger.Info($"Server started at:{DateTime.Now}");
             using (var db = new dbEntities())
             {
                 Console.Write("Starting and initializing the server...\n");
@@ -69,22 +71,29 @@ namespace ClientServerApp
 
         private static async void StartReceiving(Socket udpSocket, dbEntities db) // = task
         {
-            string server_answer; // Переменная ответа сервера клиенту
             string data; // Данные сообщения от клиента
-            //List<Student> Students = db.Students.ToList();
-            //List<Group> Groups = db.Groups.ToList();
-            //List<LearningStatus> LearningStatuses = db.LearningStatuses.ToList();
-            //List<Student> newStudents = new List<Student>(); // Лист новых, добавленных во время работы приложения студентов
-            IPAddress clientIP = IPAddress.Parse("127.0.0.1"); // this is client's ip and port
-            int clientPort = 8082;
-            EndPoint senderEndPoint = new IPEndPoint(clientIP, clientPort); // Эндпоинт клиента(отправителя сообщений)
-            //logger.Info($"Server started at {DateTime.Now}");
-            Console.WriteLine("Server started successfully!");
+            EndPoint senderEndPoint = new IPEndPoint(clientIP, clientPort);
+            LoggerMessageOutput("start", "Server started successfully!");
             while (true)
             {
                 data = ReceiveData(udpSocket, senderEndPoint);
-                SendList(data, udpSocket, senderEndPoint, db);
-                //SendDataAsync(udpSocket, senderEndPoint, "test"); // NO AWAIT
+                switch(data)
+                {
+                    case "delete":
+                        await ReceiveDataForDeleteAsync(udpSocket, senderEndPoint, db);
+                        break;
+                    case "add":
+                        await ReceiveDataForWriteAsync(udpSocket, senderEndPoint, db);
+                        break;
+                    case "groups":
+                    case "students":
+                    case "learningstatuses":
+                        SendList(data, udpSocket, senderEndPoint, db);
+                        break;
+                    default:
+                        LoggerMessageOutput("error", "Error: can't recognize client's answer. Check the StartReceiving() method.");
+                        break;
+                }
             }
         }
     }

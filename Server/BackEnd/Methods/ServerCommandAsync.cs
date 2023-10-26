@@ -58,7 +58,9 @@ namespace ClientServerApp.BackEnd.Methods
             switch (type)
             {
                 case "error":
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(message);
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     logger.Error(message);
                     break;
                 case "info":
@@ -66,9 +68,11 @@ namespace ClientServerApp.BackEnd.Methods
                     logger.Info(message);
                     break;
                 case "start":
-                    Console.BackgroundColor = ConsoleColor.Green;
-                    Console.WriteLine(message);
-                    logger.Info($"Server start at: {DateTime.Now}.\n {message}");
+                    string output = $"Server start at: {DateTime.Now}.\n {message}";
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(output);
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    logger.Info(output);
                     break;
                 default:
                     logger.Error("Something went wrong. Check the ServerCommandAsync.cs and LoggerMessageOutput() using.");
@@ -76,11 +80,7 @@ namespace ClientServerApp.BackEnd.Methods
             }
         }
 
-        static JsonSerializerOptions options = new JsonSerializerOptions()
-        {
-            ReferenceHandler = ReferenceHandler.IgnoreCycles,
-            WriteIndented = true
-        };
+
 
         /// <summary>
         /// Метод, отправляющий листы сущностей объектов, хранящихся в базе данных.
@@ -95,7 +95,7 @@ namespace ClientServerApp.BackEnd.Methods
                 {
                     case "groups":
                         List<Group> groups = db.Groups.ToList();
-                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(groups, options));
+                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(groups));
                         LoggerMessageOutput("info", "List of groups was sended to client.");
                         break;
                     case "students":
@@ -106,12 +106,12 @@ namespace ClientServerApp.BackEnd.Methods
                         break;
                     case "learningstatuses":
                         List<LearningStatus> learningStatuses = db.LearningStatuses.ToList();
-                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(learningStatuses, options));
+                        SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(learningStatuses));
                         LoggerMessageOutput("info", "List of statuses was sended to client.");
 
                         break;
                     default:
-                        LoggerMessageOutput("Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'", "error");
+                        LoggerMessageOutput("error", "Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'");
                         break;
                 }
             }
@@ -121,42 +121,35 @@ namespace ClientServerApp.BackEnd.Methods
             }
         }
 
-        public async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
         {
-            while (true)
-            {
-                string _ReceivedDataFromClient = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
+                string _receivedStudent = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
                 try
                 {
-                    AddStudent(JsonSerializer.Deserialize<Student>(_ReceivedDataFromClient), db);
-                    Console.WriteLine("User add new student.");
+                    AddStudent(JsonSerializer.Deserialize<Student>(_receivedStudent), db);
                     LoggerMessageOutput("info", "Success add.");
                 }
                 catch (Exception e)
                 {
                     LoggerMessageOutput($"Error: {e.Message}", "error");
                 }
-            }
         }
 
-        public async Task RecieveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static async Task ReceiveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
         {
-            while (true)
+            string _receivedIndex = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
+            try
             {
-                string message = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
-                try
+                if (int.TryParse(_receivedIndex, out int index))
                 {
-                    if (int.TryParse(message, out int index)) // Чтение по индексу
-                    {
-                        DeleteStudent(index, db);
-                        logger.Info($"User delete student with id = {index}");
-                        continue;
-                    }
+                    DeleteStudent(index, db);
+                    logger.Info($"User delete student with id = {index}");
                 }
-                catch (Exception e)
-                {
-                    LoggerMessageOutput($"Error: {e.Message}", "error");
-                }
+                else LoggerMessageOutput("error", $"error: {_receivedIndex} is'nt a int. Check the client side.");
+            }
+            catch (Exception e)
+            {
+                LoggerMessageOutput($"Error: {e.Message}", "error");
             }
         }
     }

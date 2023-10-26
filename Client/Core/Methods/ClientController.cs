@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace Client.Core.Methods
 {
-    public class ClientConnection
+    public class ClientController
     {
 
         /// <summary>

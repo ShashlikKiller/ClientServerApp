@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Client.Core.Entities
 {
-    internal class Group
+    public class Group
     {
         public Group()
         {

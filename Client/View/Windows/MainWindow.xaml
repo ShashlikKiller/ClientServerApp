@@ -36,6 +36,7 @@
         <Frame Name="StatusFrame" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="2" Content="{Binding StatusPage}"/>
         <DataGrid Grid.Row="2" Grid.Column="2" x:Name="studentsDataGrid" ItemsSource="{Binding Students, UpdateSourceTrigger=PropertyChanged}"
                   CanUserDeleteRows="False"
+                  SelectedItem="{Binding SelectedStudent}"
                   AutoGenerateColumns="False"
                   SelectionMode="Single">
             <DataGrid.Resources>
@@ -94,5 +95,13 @@
                 </ControlTemplate>
             </DataGrid.RowValidationErrorTemplate>
         </DataGrid>
+        <StackPanel Grid.Row="2" Grid.Column="2" VerticalAlignment="Bottom">
+            <DockPanel>
+                <Button Content="Add student" Command="{Binding AddStudentCommand}"/>
+            </DockPanel>
+            <DockPanel>
+                <Button Content="Delete student" Command="{Binding DeleteStudentCommand}"/>
+            </DockPanel>
+        </StackPanel>
     </Grid>
 </Window>
