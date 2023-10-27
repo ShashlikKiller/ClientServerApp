@@ -93,7 +93,7 @@ namespace ClientServerApp.BackEnd.Methods
         /// </summary>
         /// <param name="clientMessage">Строка, указывающая какой лист надо отправить("groups", "students", "learningstatuses").</param>
         /// <returns></returns>
-        public static async void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static async void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntitiesNew db)
         {
             try
             {
@@ -102,22 +102,22 @@ namespace ClientServerApp.BackEnd.Methods
                     case "groups":
                         List<Group> groups = db.Groups.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(groups));
-                        LoggerMessageOutput("info", "List of groups was sended to client.");
+                        await LoggerMessageOutput("info", "List of groups was sended to client.");
                         break;
                     case "students":
                         List<Student> students = db.Students.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(students));
-                        LoggerMessageOutput("info", "List of students was sended to client.");
+                        await LoggerMessageOutput("info", "List of students was sended to client.");
 
                         break;
                     case "learningstatuses":
                         List<LearningStatus> learningStatuses = db.LearningStatuses.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(learningStatuses));
-                        LoggerMessageOutput("info", "List of statuses was sended to client.");
+                        await LoggerMessageOutput("info", "List of statuses was sended to client.");
 
                         break;
                     default:
-                        LoggerMessageOutput("error", "Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'");
+                        await LoggerMessageOutput("error", "Error. Check the ClientConnection.cs and Send/Receive method 'GetList<T>.'");
                         break;
                 }
             }
@@ -127,9 +127,9 @@ namespace ClientServerApp.BackEnd.Methods
             }
         }
 
-        public static async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntitiesNew db)
         {
-                string _receivedStudent = await ReceiveDataAsync(udpSocket, senderEndPoint); // no await? // .Result
+                string _receivedStudent = await ReceiveDataAsync(udpSocket, senderEndPoint);
                 try
                 {
                     AddStudent(JsonSerializer.Deserialize<Student>(_receivedStudent), db);
@@ -141,7 +141,7 @@ namespace ClientServerApp.BackEnd.Methods
                 }
         }
 
-        public static async Task ReceiveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static async Task ReceiveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntitiesNew db)
         {
             string _receivedIndex = await ReceiveDataAsync(udpSocket, senderEndPoint);
             try
@@ -149,7 +149,7 @@ namespace ClientServerApp.BackEnd.Methods
                 if (int.TryParse(_receivedIndex, out int index))
                 {
                     DeleteStudent(index, db);
-                    logger.Info($"User delete student with id = {index}");
+                    await LoggerMessageOutput("info", $"User delete student with id = {index}");
                 }
                 else await LoggerMessageOutput("error", $"error: {_receivedIndex} is'nt a int. Check the client side.");
             }

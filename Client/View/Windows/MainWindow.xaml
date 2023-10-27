@@ -53,6 +53,12 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
+                <DataGridTextColumn Header="Id" 
+                    EditingElementStyle="{StaticResource errorStyle}"
+                    Binding="{Binding Path=id, 
+                                UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, Mode=TwoWay, 
+                                NotifyOnValidationError=True}"
+                    Width="0.4*"/>
                 <DataGridTextColumn Header="Имя" 
                                     EditingElementStyle="{StaticResource errorStyle}"
                                     Binding="{Binding Path=name, 

@@ -117,6 +117,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="Database\dbModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>dbModel.edmx</DependentUpon>
+      <LastGenOutput>dbModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Database\dbModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>dbModel.edmx</DependentUpon>
+      <LastGenOutput>dbModel.cs</LastGenOutput>
+    </Content>
+    <Content Include="Logger\NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <EntityDeploy Include="Database\dbModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>dbModel.Designer.cs</LastGenOutput>
@@ -124,25 +137,10 @@
     <None Include="Database\dbModel.edmx.diagram">
       <DependentUpon>dbModel.edmx</DependentUpon>
     </None>
-    <Content Include="Logger\NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Logger\NLog.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Database\dbModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>dbModel.Context.cs</LastGenOutput>
-      <DependentUpon>dbModel.edmx</DependentUpon>
-    </Content>
-    <Content Include="Database\dbModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>dbModel.edmx</DependentUpon>
-      <LastGenOutput>dbModel.cs</LastGenOutput>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

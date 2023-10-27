@@ -1,18 +1,15 @@
 ﻿using Client.Core.Entities;
 using Client.Core.Methods;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using static Client.Core.Methods.ClientController;
 using System.Text.Json;
-using System.Timers;
+using System.Linq;
 
 namespace Client.ViewModel.WindowViewModel
 {
@@ -22,7 +19,15 @@ namespace Client.ViewModel.WindowViewModel
         private static ObservableCollection<Group> groups;
         private static ObservableCollection<LearningStatus> learningStatuses;
 
-        public ObservableCollection<Student> Students { get => students; set => students = value; }
+        public ObservableCollection<Student> Students 
+        {
+            get => students;
+            set
+            {
+                students = value;
+                OnPropertyChanged("Students");
+            }
+        }
         public static ObservableCollection<Group> Groups { get => groups; set => groups = value; }
         public static ObservableCollection<LearningStatus> Statuses { get => learningStatuses; set => learningStatuses = value; }
 
@@ -62,15 +67,21 @@ namespace Client.ViewModel.WindowViewModel
             }
         }
 
+        /// <summary>
+        /// BIG WARNING BIG WARNING BIG WARNING
+        /// </summary>
+        /// <param name="udpSocket"></param>
+        /// <param name="serverEndPoint"></param>
         public async void DeleteStudent(Socket udpSocket, EndPoint serverEndPoint)
         {
             if (!(SelectedStudent is null))
             {
-                if (!(String.IsNullOrEmpty(SelectedStudent.name) || String.IsNullOrEmpty(SelectedStudent.surname) || SelectedStudent.Group is null || SelectedStudent.LearningStatus is null))
+                if (!(String.IsNullOrEmpty(SelectedStudent.name) || String.IsNullOrEmpty(SelectedStudent.surname) || SelectedStudent.group_id == 0 || SelectedStudent.learningstatus_id == 0))
                 {
                     SendData(udpSocket, serverEndPoint, "delete");
                     await SendDataAsync(udpSocket, serverEndPoint, SelectedStudent.id.ToString());
-                    Thread.Sleep(2000);
+                    SelectedStudent = Students.FirstOrDefault(s => s.id == SelectedStudent.id);
+                    Thread.Sleep(1000);
                     Students.Remove(SelectedStudent);
                 }
             }
@@ -84,7 +95,7 @@ namespace Client.ViewModel.WindowViewModel
                     SendData(udpSocket, serverEndPoint, "add");
                     string _message = JsonSerializer.Serialize(SelectedStudent);
                     await SendDataAsync(udpSocket, serverEndPoint, _message);
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                     Students = GetList<Student>("students", udpSocket, serverEndPoint);
                 }
             }

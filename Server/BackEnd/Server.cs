@@ -19,7 +19,7 @@ namespace ClientServerApp
         static void Main(string[] args)
         {
             Console.WriteLine("This is server.\n");
-            using (var db = new dbEntities())
+            using (var db = new dbEntitiesNew())
             {
                 Console.Write("Starting and initializing the server...\n");
                 #region test
@@ -58,7 +58,7 @@ namespace ClientServerApp
         /// </summary>
         /// <param name="udpSocket">Сокет сервера</param>
         /// <param name="db">Контекст базы данных</param>
-        private static async void StartReceiving(Socket udpSocket, dbEntities db)
+        private static async void StartReceiving(Socket udpSocket, dbEntitiesNew db)
         {
             string data; // Данные сообщения от клиента
             EndPoint senderEndPoint = new IPEndPoint(clientIP, clientPort);
@@ -81,7 +81,7 @@ namespace ClientServerApp
                         SendList(data, udpSocket, senderEndPoint, db); // Отправка выбранного листа клиенту
                         break;
                     default:
-                        LoggerMessageOutput("error", "Error: can't recognize client's answer. Check the StartReceiving() method.");
+                        await LoggerMessageOutput("error", "Error: can't recognize client's answer. Check the StartReceiving() method.");
                         break;
                 }
             }

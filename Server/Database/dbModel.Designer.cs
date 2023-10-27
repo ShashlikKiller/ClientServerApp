@@ -1,4 +1,4 @@
-﻿// Создание кода T4 для модели "C:\Users\vipef\source\repos\Server\ClientServerApp\Database\dbModel.edmx" включено. 
+﻿// Создание кода T4 для модели "C:\Users\vipef\Source\Repos\ClientServerApp2\Server\Database\dbModel.edmx" включено. 
 // Чтобы включить формирование кода прежних версий, измените значение свойства "Стратегия создания кода" конструктора
 // на "Legacy ObjectContext". Это свойство доступно в окне "Свойства", если модель
 // открыта в конструкторе.
