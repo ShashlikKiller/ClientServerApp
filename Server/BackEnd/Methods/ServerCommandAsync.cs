@@ -9,8 +9,6 @@ using NLog;
 using System.Text.Json;
 using static ClientServerApp.BackEnd.Methods.DBController;
 using ClientServerApp.Database;
-using System.Reflection;
-using System.Text.Json.Serialization;
 
 namespace ClientServerApp.BackEnd.Methods
 {
@@ -53,41 +51,49 @@ namespace ClientServerApp.BackEnd.Methods
         /// <param name="message">Сообщение, которое нужно вывести в консоль и логи</param>
         /// <param name="type">Тип сообщения ("error", "info", "start")</param>
         /// <returns></returns>
-        public static void LoggerMessageOutput(string type, string message)
+        public static async Task LoggerMessageOutput(string type, string message)
         {
             switch (type)
             {
                 case "error":
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(message);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    logger.Error(message);
+                    await Task.Run(() =>
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(message);
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        logger.Error(message);
+                    });
                     break;
                 case "info":
-                    Console.WriteLine(message);
-                    logger.Info(message);
+                    await Task.Run(() =>
+                    {
+                        Console.WriteLine(message);
+                        logger.Info(message);
+                    });
                     break;
                 case "start":
-                    string output = $"Server start at: {DateTime.Now}.\n {message}";
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(output);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    logger.Info(output);
+                    await Task.Run(() =>
+                    {
+                        string output = $"Server start at: {DateTime.Now}.\n {message}";
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine(output);
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        logger.Info(output);
+                    });
                     break;
                 default:
+                    Console.WriteLine("Error at LoggerMessageOutput. Check this method at ServerCommandAsync.cs");
                     logger.Error("Something went wrong. Check the ServerCommandAsync.cs and LoggerMessageOutput() using.");
                     break;
             }
         }
-
-
 
         /// <summary>
         /// Метод, отправляющий листы сущностей объектов, хранящихся в базе данных.
         /// </summary>
         /// <param name="clientMessage">Строка, указывающая какой лист надо отправить("groups", "students", "learningstatuses").</param>
         /// <returns></returns>
-        public static void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
+        public static async void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
         {
             try
             {
@@ -117,27 +123,27 @@ namespace ClientServerApp.BackEnd.Methods
             }
             catch (SocketException e)
             {
-                LoggerMessageOutput($"Error: {e.Message}", "error");
+                await LoggerMessageOutput($"Error: {e.Message}", "error");
             }
         }
 
         public static async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
         {
-                string _receivedStudent = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
+                string _receivedStudent = await ReceiveDataAsync(udpSocket, senderEndPoint); // no await? // .Result
                 try
                 {
                     AddStudent(JsonSerializer.Deserialize<Student>(_receivedStudent), db);
-                    LoggerMessageOutput("info", "Success add.");
+                    await LoggerMessageOutput("info", "Success add.");
                 }
                 catch (Exception e)
                 {
-                    LoggerMessageOutput($"Error: {e.Message}", "error");
+                    await LoggerMessageOutput($"Error: {e.Message}", "error");
                 }
         }
 
         public static async Task ReceiveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntities db)
         {
-            string _receivedIndex = ReceiveDataAsync(udpSocket, senderEndPoint).Result;
+            string _receivedIndex = await ReceiveDataAsync(udpSocket, senderEndPoint);
             try
             {
                 if (int.TryParse(_receivedIndex, out int index))
@@ -145,11 +151,11 @@ namespace ClientServerApp.BackEnd.Methods
                     DeleteStudent(index, db);
                     logger.Info($"User delete student with id = {index}");
                 }
-                else LoggerMessageOutput("error", $"error: {_receivedIndex} is'nt a int. Check the client side.");
+                else await LoggerMessageOutput("error", $"error: {_receivedIndex} is'nt a int. Check the client side.");
             }
             catch (Exception e)
             {
-                LoggerMessageOutput($"Error: {e.Message}", "error");
+                await LoggerMessageOutput($"Error: {e.Message}", "error");
             }
         }
     }

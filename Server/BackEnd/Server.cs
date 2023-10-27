@@ -1,31 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ClientServerApp.Database;
-using NLog;
 using static ClientServerApp.BackEnd.Methods.ServerCommandsAsync;
 using Group = ClientServerApp.Database.Group;
+using System.Threading;
 
 namespace ClientServerApp
 {
     internal class Server
     {
-        // 1. Клиент производить только отображение данных.
-        // To Do: Следующие операции производятся на стороне сервера:
-        //   Передача запрошенных данных из файла:
-        //   Передача всех данных
-        //   Передача записи по номеру
-        //   Запись новых данных от клиента в файл
-        //   Удаление записи из файла по её номеру
-        // 2. Логирование операций на стороне сервера с помощью библиотеки NLog
-        // 3. Сервер должен многопоточным.
-        // Многопоточность реализовать с помощью асинхронных методов класса UDPClient
-
         static IPAddress serverIP = IPAddress.Parse("127.0.0.1");
         const int serverPort = 8081;
 
@@ -64,12 +48,17 @@ namespace ClientServerApp
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    LoggerMessageOutput("error", $"Server can't start: {e.Message}");
                 }
             }
         }
 
-        private static async void StartReceiving(Socket udpSocket, dbEntities db) // = task
+        /// <summary>
+        /// Основной метод работы сервера, работает через while-true.
+        /// </summary>
+        /// <param name="udpSocket">Сокет сервера</param>
+        /// <param name="db">Контекст базы данных</param>
+        private static async void StartReceiving(Socket udpSocket, dbEntities db)
         {
             string data; // Данные сообщения от клиента
             EndPoint senderEndPoint = new IPEndPoint(clientIP, clientPort);
@@ -79,16 +68,17 @@ namespace ClientServerApp
                 data = ReceiveData(udpSocket, senderEndPoint);
                 switch(data)
                 {
-                    case "delete":
-                        await ReceiveDataForDeleteAsync(udpSocket, senderEndPoint, db);
+                    case "delete": // Получение команды на удаление записи по индексу
+                        ReceiveDataForDeleteAsync(udpSocket, senderEndPoint, db);
                         break;
-                    case "add":
-                        await ReceiveDataForWriteAsync(udpSocket, senderEndPoint, db);
+                    case "add": // Получение команды на добавление записи
+                        ReceiveDataForWriteAsync(udpSocket, senderEndPoint, db);
                         break;
-                    case "groups":
-                    case "students":
-                    case "learningstatuses":
-                        SendList(data, udpSocket, senderEndPoint, db);
+                                            // Получение команды на отправку клиенту
+                    case "groups":          // Групп;
+                    case "students":        // Студентов;
+                    case "learningstatuses":// Статусов.
+                        SendList(data, udpSocket, senderEndPoint, db); // Отправка выбранного листа клиенту
                         break;
                     default:
                         LoggerMessageOutput("error", "Error: can't recognize client's answer. Check the StartReceiving() method.");
