@@ -79,7 +79,7 @@ namespace Client.ViewModel.WindowViewModel
         {
             if (!(SelectedStudent is null))
             {
-                if (!(String.IsNullOrEmpty(SelectedStudent.name) || String.IsNullOrEmpty(SelectedStudent.surname) || SelectedStudent.group_id == 0 || SelectedStudent.learningstatus_id == 0))
+                if (!(SelectedStudent.id != 0 || String.IsNullOrEmpty(SelectedStudent.name) || String.IsNullOrEmpty(SelectedStudent.surname) || SelectedStudent.group_id == 0 || SelectedStudent.learningstatus_id == 0))
                 {
                     SendData(udpSocket, serverEndPoint, "add");
                     string _message = JsonSerializer.Serialize(SelectedStudent);
