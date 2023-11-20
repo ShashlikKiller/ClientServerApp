@@ -8,6 +8,9 @@
 #### [Лабораторная работа №2](https://github.com/ShashlikKiller/IS_Arch/tree/d868e8d366d2c942b6675b5b7a5fdf8e81cb5790#%D0%BB%D0%B0%D0%B1%D0%BE%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%BD%D0%B0%D1%8F-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0-2-%D0%B2-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B5)
 #### [Лабораторная работа №3](https://github.com/ShashlikKiller/IS_Arch)
 #### [Лабораторная работа №4](https://github.com/ShashlikKiller/ClientServerApp/releases/tag/lab)
+#### [Лабораторная работа №5](https://github.com/ShashlikKiller/OAuthVK)
+#### [Лабораторная работа №6](https://github.com/ShashlikKiller/TpuRaspParser)
+#### [Лабораторная работа №7](https://github.com/ShashlikKiller/ClientServerApp/releases/tag/lab7)
 
 ### Возможности, реализуемые в приложении:
 
