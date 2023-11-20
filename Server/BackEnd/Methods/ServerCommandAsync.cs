@@ -93,25 +93,25 @@ namespace ClientServerApp.BackEnd.Methods
         /// </summary>
         /// <param name="clientMessage">Строка, указывающая какой лист надо отправить("groups", "students", "learningstatuses").</param>
         /// <returns></returns>
-        public static async void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbEntitiesNew db)
+        public static async void SendList(string clientMessage, Socket udpSocket, EndPoint senderEndPoint, dbContext db)
         {
             try
             {
                 switch (clientMessage)
                 {
                     case "groups":
-                        List<Group> groups = db.Groups.ToList();
+                        List<Group> groups = db.Group.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(groups));
                         await LoggerMessageOutput("info", "List of groups was sended to client.");
                         break;
                     case "students":
-                        List<Student> students = db.Students.ToList();
+                        List<Student> students = db.Student.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(students));
                         await LoggerMessageOutput("info", "List of students was sended to client.");
 
                         break;
                     case "learningstatuses":
-                        List<LearningStatus> learningStatuses = db.LearningStatuses.ToList();
+                        List<LearningStatus> learningStatuses = db.LearningStatus.ToList();
                         SendData(udpSocket, senderEndPoint, JsonSerializer.Serialize(learningStatuses));
                         await LoggerMessageOutput("info", "List of statuses was sended to client.");
 
@@ -127,7 +127,7 @@ namespace ClientServerApp.BackEnd.Methods
             }
         }
 
-        public static async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntitiesNew db)
+        public static async Task ReceiveDataForWriteAsync(Socket udpSocket, EndPoint senderEndPoint, dbContext db)
         {
                 string _receivedStudent = await ReceiveDataAsync(udpSocket, senderEndPoint);
                 try
@@ -141,7 +141,7 @@ namespace ClientServerApp.BackEnd.Methods
                 }
         }
 
-        public static async Task ReceiveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbEntitiesNew db)
+        public static async Task ReceiveDataForDeleteAsync(Socket udpSocket, EndPoint senderEndPoint, dbContext db)
         {
             string _receivedIndex = await ReceiveDataAsync(udpSocket, senderEndPoint);
             try

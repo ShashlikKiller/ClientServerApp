@@ -5,6 +5,7 @@ using ClientServerApp.Database;
 using static ClientServerApp.BackEnd.Methods.ServerCommandsAsync;
 using Group = ClientServerApp.Database.Group;
 using System.Threading;
+using System.Linq;
 
 namespace ClientServerApp
 {
@@ -19,22 +20,22 @@ namespace ClientServerApp
         static void Main(string[] args)
         {
             Console.WriteLine("This is server.\n");
-            using (var db = new dbEntitiesNew())
+            using (var db = new dbContext())
             {
                 Console.Write("Starting and initializing the server...\n");
                 #region test
                 Console.Write("Students:\n");
-                foreach (Student student in db.Students)
+                foreach (Student student in db.Student.ToList())
                 {
                     Console.WriteLine($"student id: {student.id}, student's name: {student.name}, student's surname: {student.surname}, student's group: {student.Group.name}, student status: {student.LearningStatus.status}");
                 }
                 Console.Write("Groups:\n");
-                foreach (Group group in db.Groups)
+                foreach (Group group in db.Group.ToList())
                 {
                     Console.WriteLine($"group id: {group.id}, group's name: {group.name}");
                 }
                 Console.Write("Statuses:\n");
-                foreach (LearningStatus status in db.LearningStatuses)
+                foreach (LearningStatus status in db.LearningStatus.ToList())
                 {
                     Console.WriteLine($"status id: {status.id}, status: {status.status}");
                 }
@@ -58,7 +59,7 @@ namespace ClientServerApp
         /// </summary>
         /// <param name="udpSocket">Сокет сервера</param>
         /// <param name="db">Контекст базы данных</param>
-        private static async void StartReceiving(Socket udpSocket, dbEntitiesNew db)
+        private static async void StartReceiving(Socket udpSocket, dbContext db)
         {
             string data; // Данные сообщения от клиента
             EndPoint senderEndPoint = new IPEndPoint(clientIP, clientPort);

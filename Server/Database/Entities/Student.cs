@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.Core.Entities
+namespace ClientServerApp.Database
 {
     public class Student
     {
@@ -14,13 +15,13 @@ namespace Client.Core.Entities
         public int group_id { get; set; }
         public int learningstatus_id { get; set; }
         public int age { get; set; }
-        public int universityschool_id { get; set; }
+        public int? universityschool_id { get; set; }
 
         public virtual Group Group { get; set; }
         public virtual LearningStatus LearningStatus { get; set; }
         public virtual UniversitySchool UniversitySchool { get; set; }
 
-        public Student(int id, string name, string surname, int group_id, int learningstatus_id, int age, int universityschool_id)
+        public Student(int id, string name, string surname, int group_id, int learningstatus_id, int age = 0, int? universityschool_id = null)
         {
             this.id = id;
             this.name = name;
